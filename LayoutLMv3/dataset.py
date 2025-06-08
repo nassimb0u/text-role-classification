@@ -260,45 +260,51 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
             return [
                 datasets.SplitGenerator(
                     name=datasets.Split.TRAIN,
-                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/train/"},
+                    gen_kwargs={
+                        "filepaths": [f"{downloaded_files}/ICPR2022Real/train/"]
+                    },
                 ),
                 datasets.SplitGenerator(
                     name=datasets.Split.TEST,
-                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/test/"},
+                    gen_kwargs={
+                        "filepaths": [f"{downloaded_files}/ICPR2022Real/test/"]
+                    },
                 ),
             ]
         if self.config.name == "CHIME-R":
             return [
                 datasets.SplitGenerator(
                     name="full",
-                    gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/train/"},
-                ),
-                datasets.SplitGenerator(
-                    name="full",
-                    gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/test/"},
+                    gen_kwargs={
+                        "filepaths": [
+                            f"{downloaded_files}/CHIME-R/train/",
+                            f"{downloaded_files}/CHIME-R/test/",
+                        ]
+                    },
                 ),
             ]
         if self.config.name == "EconBiz":
             return [
                 datasets.SplitGenerator(
                     name="full",
-                    gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/train/"},
-                ),
-                datasets.SplitGenerator(
-                    name="full",
-                    gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/test/"},
+                    gen_kwargs={
+                        "filepaths": [
+                            f"{downloaded_files}/EconBiz/train/",
+                            f"{downloaded_files}/EconBiz/test/",
+                        ]
+                    },
                 ),
             ]
 
-    def _generate_examples(self, filepath, filepaths_tar=None):
+    def _generate_examples(self, filepaths, filepaths_tar=None):
+        for filepath in filepaths:
+            if filepaths_tar is not None:
+                for tar in filepaths_tar:
+                    filepath = os.path.join(tar, filepath)
+                    return self.generate(filepath)
 
-        if filepaths_tar is not None:
-            for tar in filepaths_tar:
-                filepath = os.path.join(tar, filepath)
+            else:
                 return self.generate(filepath)
-
-        else:
-            return self.generate(filepath)
 
     def generate(self, filepath):
         dataset_format1 = []
