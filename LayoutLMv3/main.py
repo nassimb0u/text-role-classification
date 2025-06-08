@@ -68,7 +68,7 @@ def main():
 
     dataset_config_icpr22 = {
         "LOADING_SCRIPT_FILES": config["loading_script"],
-        "CONFIG_NAME": config["datasets"][2],
+        "CONFIG_NAME": config["datasets"][0],
     }
 
     icpr22_cache_dir = tempfile.mkdtemp(prefix="my_cache_icpr22")
@@ -82,17 +82,12 @@ def main():
 
         dataset_config_chimer = {
             "LOADING_SCRIPT_FILES": config["loading_script"],
-            "CONFIG_NAME": config["datasets"][3],
-        }
-
-        dataset_config_degruyter = {
-            "LOADING_SCRIPT_FILES": config["loading_script"],
-            "CONFIG_NAME": config["datasets"][4],
+            "CONFIG_NAME": config["datasets"][1],
         }
 
         dataset_config_econbiz = {
             "LOADING_SCRIPT_FILES": config["loading_script"],
-            "CONFIG_NAME": config["datasets"][5],
+            "CONFIG_NAME": config["datasets"][2],
         }
 
         chimer_cache_dir = tempfile.mkdtemp(prefix="my_cache_chimer")
@@ -100,13 +95,6 @@ def main():
             dataset_config_chimer["LOADING_SCRIPT_FILES"],
             dataset_config_chimer["CONFIG_NAME"],
             cache_dir=chimer_cache_dir,
-        )
-
-        degruyter_cache_dir = tempfile.mkdtemp(prefix="my_cache_degruyter")
-        degruyter = load_dataset(
-            dataset_config_degruyter["LOADING_SCRIPT_FILES"],
-            dataset_config_degruyter["CONFIG_NAME"],
-            cache_dir=degruyter_cache_dir,
         )
 
         econbiz_cache_dir = tempfile.mkdtemp(prefix="my_cache_econbiz")
@@ -124,19 +112,13 @@ def main():
             "test": load_from_disk(f"{chimer_path}/test"),
         }
 
-        degruyter_path = utils_config["data_dir"]["DeGruyter"].rsplit("/", 1)[0]
-        degruyter = {
-            "train": load_from_disk(f"{degruyter_path}/train"),
-            "test": load_from_disk(f"{degruyter_path}/test"),
-        }
-
         econbiz_path = utils_config["data_dir"]["EconBiz"].rsplit("/", 1)[0]
         econbiz = {
             "train": load_from_disk(f"{econbiz_path}/train"),
             "test": load_from_disk(f"{econbiz_path}/test"),
         }
 
-    ds = [icpr22, chimer, degruyter, econbiz]
+    ds = [icpr22, chimer, econbiz]
 
     # PREPARE DATASET #
     column_names = icpr22["train"].column_names
