@@ -291,8 +291,8 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
             return self.generate(filepath)
 
     def generate(self, filepath):
-        dataset_format1 = ["ICPR2022Real"]
-        dataset_format2 = ["CHIME-R", "EconBiz"]
+        dataset_format1 = []
+        dataset_format2 = ["ICPR2022Real", "CHIME-R", "EconBiz"]
 
         ann_dir = os.path.join(filepath, "annotations")
         img_dir = os.path.join(filepath, "images")
