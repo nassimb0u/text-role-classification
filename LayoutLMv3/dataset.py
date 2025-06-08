@@ -191,7 +191,7 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                 "VALUE_LABEL",
                 "OTHER",
             ],
-            img_type="jpg",
+            img_type="png",
             citation=_CITATION["ICPR2022Real"],
         ),
         ChartInfoConfig(
