@@ -260,11 +260,11 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
             return [
                 datasets.SplitGenerator(
                     name=datasets.Split.TRAIN,
-                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022/real/train/"},
+                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/train/"},
                 ),
                 datasets.SplitGenerator(
                     name=datasets.Split.TEST,
-                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022/real/test/"},
+                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/test/"},
                 ),
             ]
         if self.config.name == "CHIME-R":
