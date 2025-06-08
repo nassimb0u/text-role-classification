@@ -270,13 +270,23 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
         if self.config.name == "CHIME-R":
             return [
                 datasets.SplitGenerator(
-                    name="full", gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/"}
+                    name="full",
+                    gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/train/"},
+                ),
+                datasets.SplitGenerator(
+                    name="full",
+                    gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/test/"},
                 ),
             ]
         if self.config.name == "EconBiz":
             return [
                 datasets.SplitGenerator(
-                    name="full", gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/"}
+                    name="full",
+                    gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/train/"},
+                ),
+                datasets.SplitGenerator(
+                    name="full",
+                    gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/test/"},
                 ),
             ]
 

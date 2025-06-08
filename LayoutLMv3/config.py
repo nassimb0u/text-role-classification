@@ -1,8 +1,8 @@
 utils_config = {
     "data_dir": {
-        "ICPR2022Real": "datasets/ICPR2022Real.tar.gz",
-        "CHIME-R": "datasets/CHIME-R.tar.gz",
-        "EconBiz": "datasets/EconBiz.tar.gz",
+        "ICPR2022Real": "/text-role-classification/datasets/ICPR2022Real.tar.gz",
+        "CHIME-R": "/text-role-classification/datasets/CHIME-R.tar.gz",
+        "EconBiz": "/text-role-classification/datasets/EconBiz.tar.gz",
     },
     "column_names": {
         "image": "image",
