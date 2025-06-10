@@ -253,7 +253,7 @@ def main():
                 per_device_train_batch_size=config["batch_size"],
                 per_device_eval_batch_size=config["batch_size"],
                 learning_rate=learning_rate,
-                evaluation_strategy=config["eval_strategy"],
+                eval_strategy=config["eval_strategy"],
                 eval_steps=config["eval_steps"],
                 logging_dir=f'{config["logging_dir"]}/{model_name}',
                 logging_strategy=config["logging_strategy"],
