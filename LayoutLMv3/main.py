@@ -255,6 +255,8 @@ def main():
                 learning_rate=learning_rate,
                 eval_strategy=config["eval_strategy"],
                 eval_steps=config["eval_steps"],
+                save_strategy=config["save_strategy"],
+                save_total_limit=config["save_total_limit"],
                 logging_dir=f'{config["logging_dir"]}/{model_name}',
                 logging_strategy=config["logging_strategy"],
                 logging_steps=config["logging_steps"],

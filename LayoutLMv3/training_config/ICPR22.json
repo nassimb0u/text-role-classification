@@ -20,6 +20,8 @@
     "eval_mode": true,
     "eval_strategy": "steps",
     "eval_steps": 5,
+    "save_strategy": "epoch",
+    "save_total_limit": 10,
     "transforms_augmentations": null,
     "transforms_balancing": null,
     "concat_datasets": false,
