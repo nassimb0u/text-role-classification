@@ -26,14 +26,14 @@
     "transforms_balancing": null,
     "concat_datasets": false,
     "experiment_mode": false,
-    "output_dir": "LayoutLMv3/outputs",
+    "output_dir": "/kaggle/working/LayoutLMv3/outputs",
     "max_steps": 10000,
     "batch_size": 2,
     "learning_rate": [
         2e-5
     ],
-    "logging_dir": "LayoutLMv3/logs",
+    "logging_dir": "/kaggle/working/LayoutLMv3/logs",
     "logging_strategy": "steps",
-    "logging_steps": 100,
+    "logging_steps": 10,
     "gradient_accumulation_steps": 16
 }
