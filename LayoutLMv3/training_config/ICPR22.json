@@ -19,8 +19,9 @@
     "combine_type": null,
     "eval_mode": true,
     "eval_strategy": "steps",
-    "eval_steps": 5,
-    "save_strategy": "epoch",
+    "eval_steps": 100,
+    "save_strategy": "steps",
+    "save_steps": 100,
     "save_total_limit": 10,
     "transforms_augmentations": null,
     "transforms_balancing": null,
@@ -34,6 +35,6 @@
     ],
     "logging_dir": "/kaggle/working/LayoutLMv3/logs",
     "logging_strategy": "steps",
-    "logging_steps": 10,
+    "logging_steps": 100,
     "gradient_accumulation_steps": 16
 }
