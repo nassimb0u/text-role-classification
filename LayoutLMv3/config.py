@@ -1,6 +1,6 @@
 utils_config = {
     "data_dir": {
-        "ICPR2022Real": "/text-role-classification/datasets/ICPR2022Real.tar.gz",
+        "ICPR2022Real": "/kaggle/working/ICPR2022Real.tar.gz",
         "CHIME-R": "/text-role-classification/datasets/CHIME-R.tar.gz",
         "EconBiz": "/text-role-classification/datasets/EconBiz.tar.gz",
     },
