@@ -298,7 +298,7 @@ def main():
         # TRAIN #
         old_collator = trainer.data_collator
         trainer.data_collator = lambda data: dict(old_collator(data))
-        trainer.train()
+        trainer.train(resume_from_checkpoint=True)
 
         # LOG #
         log(trainer, model_name, config)
@@ -320,6 +320,8 @@ def main():
                 dataset=v,
                 label_list=label_list,
             )
+
+        trainer.save_model("/kaggle/working/final_model")
 
 
 if __name__ == "__main__":
