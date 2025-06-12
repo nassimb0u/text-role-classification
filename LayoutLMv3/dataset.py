@@ -301,7 +301,7 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
         dataset_format1 = ["ICPR2022Real"]
         dataset_format2 = ["CHIME-R", "EconBiz"]
 
-        gen_filepaths = glob.glob(filepath_mbg)
+        gen_filepaths = sorted(glob.glob(filepath_mbg))
 
         for filepath in gen_filepaths:
             ann_dir = os.path.join(filepath, "annotations")
