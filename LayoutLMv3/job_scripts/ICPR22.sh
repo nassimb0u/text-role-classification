@@ -6,8 +6,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=
-source venv/bin/activate
-python3 main.py /LayoutLMv3/training_config/ICPR22.json
+python3 LayoutLMv3/main.py LayoutLMv3/training_config/ICPR22.json
 
 # =====================
 # Logging information

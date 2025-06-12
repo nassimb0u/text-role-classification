@@ -46,11 +46,12 @@ _CITATION = {
   timestamp    = {Mon, 11 May 2020 15:49:46 +0200},
   biburl       = {https://dblp.org/rec/journals/mta/BoschenBS18.bib},
   bibsource    = {dblp computer science bibliography, https://dblp.org}
-}"""
+}""",
 }
 
 
 # modified from https://huggingface.co/datasets/nielsr/cord-layoutlmv3/blob/main/cord-layoutlmv3.py
+
 
 def load_image(img_path):
     img = Image.open(img_path).convert("RGB")
@@ -75,17 +76,12 @@ def normalize_bbox(bbox, size, type=None):
         int(1000 * left / size[0]),
         int(1000 * top / size[1]),
         int(1000 * right / size[0]),
-        int(1000 * bottom / size[1])
+        int(1000 * bottom / size[1]),
     ]
 
 
 def quad_to_box(quad):
-    box = (
-        max(0, quad["x0"]),
-        max(0, quad["y0"]),
-        quad["x2"],
-        quad["y2"]
-    )
+    box = (max(0, quad["x0"]), max(0, quad["y0"]), quad["x2"], quad["y2"])
     if box[3] < box[1]:
         bbox = list(box)
         tmp = bbox[3]
@@ -112,14 +108,16 @@ def get_quad(bbox, width, height):
     y3 = int(bbox["center_y"] + bbox["height"] / 2)
 
     if bbox["orientation"] == 0:
-        return {"x0": x0,
-                "x1": x1,
-                "x2": x2,
-                "x3": x3,
-                "y0": y0,
-                "y1": y1,
-                "y2": y2,
-                "y3": y3}
+        return {
+            "x0": x0,
+            "x1": x1,
+            "x2": x2,
+            "x3": x3,
+            "y0": y0,
+            "y1": y1,
+            "y2": y2,
+            "y3": y3,
+        }
 
     # rotate coordinates if orientation is not 0
 
@@ -151,18 +149,20 @@ def get_quad(bbox, width, height):
         elif n < 0:
             result[i] = 0
 
-    return {"x0": result[0],
-            "x1": result[2],
-            "x2": result[4],
-            "x3": result[6],
-            "y0": result[1],
-            "y1": result[3],
-            "y2": result[5],
-            "y3": result[7]}
+    return {
+        "x0": result[0],
+        "x1": result[2],
+        "x2": result[4],
+        "x3": result[6],
+        "y0": result[1],
+        "y1": result[3],
+        "y2": result[5],
+        "y3": result[7],
+    }
 
 
 class ChartInfoConfig(datasets.BuilderConfig):
-    """ Builder Config for Chart Infographics Dataset """
+    """Builder Config for Chart Infographics Dataset"""
 
     def __init__(self, data_dir, labels, img_type, citation, **kwargs):
         super(ChartInfoConfig, self).__init__(**kwargs)
@@ -173,33 +173,63 @@ class ChartInfoConfig(datasets.BuilderConfig):
 
 
 class ChartInfo(datasets.GeneratorBasedBuilder):
-    """ Chart Infographics Dataset """
+    """Chart Infographics Dataset"""
 
     BUILDER_CONFIGS = [
-        ChartInfoConfig(name="ICPR2022Real", description="ICPR Dataset 2022 [Real]",
-                        data_dir=utils_config["data_dir"]["ICPR2022Real"],
-                        labels=["CHART_TITLE", "LEGEND_TITLE", "LEGEND_LABEL", "AXIS_TITLE", "TICK_LABEL",
-                                "TICK_GROUPING", "MARK_LABEL", "VALUE_LABEL", "OTHER"],
-                        img_type="jpg",
-                        citation=_CITATION["ICPR2022Real"]),
-        ChartInfoConfig(name="CHIME-R", description="CHIME-R Dataset",
-                        data_dir=utils_config["data_dir"]["CHIME-R"],
-                        labels=["CHART_TITLE", "LEGEND_TITLE", "LEGEND_LABEL", "AXIS_TITLE", "TICK_LABEL",
-                                "TICK_GROUPING", "MARK_LABEL", "VALUE_LABEL", "OTHER"],
-                        img_type="bmp",
-                        citation=_CITATION["OTHER"]),
-        ChartInfoConfig(name="DeGruyter", description="DeGruyter Dataset",
-                        data_dir=utils_config["data_dir"]["DeGruyter"],
-                        labels=["CHART_TITLE", "LEGEND_TITLE", "LEGEND_LABEL", "AXIS_TITLE", "TICK_LABEL",
-                                "TICK_GROUPING", "MARK_LABEL", "VALUE_LABEL", "OTHER"],
-                        img_type="png",
-                        citation=_CITATION["OTHER"]),
-        ChartInfoConfig(name="EconBiz", description="EconBiz Dataset",
-                        data_dir=utils_config["data_dir"]["EconBiz"],
-                        labels=["CHART_TITLE", "LEGEND_TITLE", "LEGEND_LABEL", "AXIS_TITLE", "TICK_LABEL",
-                                "TICK_GROUPING", "MARK_LABEL", "VALUE_LABEL", "OTHER"],
-                        img_type="png",
-                        citation=_CITATION["OTHER"]),
+        ChartInfoConfig(
+            name="ICPR2022Real",
+            description="ICPR Dataset 2022 [Real]",
+            data_dir=utils_config["data_dir"]["ICPR2022Real"],
+            labels=[
+                "CHART_TITLE",
+                "LEGEND_TITLE",
+                "LEGEND_LABEL",
+                "AXIS_TITLE",
+                "TICK_LABEL",
+                "TICK_GROUPING",
+                "MARK_LABEL",
+                "VALUE_LABEL",
+                "OTHER",
+            ],
+            img_type="jpg",
+            citation=_CITATION["ICPR2022Real"],
+        ),
+        ChartInfoConfig(
+            name="CHIME-R",
+            description="CHIME-R Dataset",
+            data_dir=utils_config["data_dir"]["CHIME-R"],
+            labels=[
+                "CHART_TITLE",
+                "LEGEND_TITLE",
+                "LEGEND_LABEL",
+                "AXIS_TITLE",
+                "TICK_LABEL",
+                "TICK_GROUPING",
+                "MARK_LABEL",
+                "VALUE_LABEL",
+                "OTHER",
+            ],
+            img_type="bmp",
+            citation=_CITATION["OTHER"],
+        ),
+        ChartInfoConfig(
+            name="EconBiz",
+            description="EconBiz Dataset",
+            data_dir=utils_config["data_dir"]["EconBiz"],
+            labels=[
+                "CHART_TITLE",
+                "LEGEND_TITLE",
+                "LEGEND_LABEL",
+                "AXIS_TITLE",
+                "TICK_LABEL",
+                "TICK_GROUPING",
+                "MARK_LABEL",
+                "VALUE_LABEL",
+                "OTHER",
+            ],
+            img_type="png",
+            citation=_CITATION["OTHER"],
+        ),
     ]
 
     def _info(self):
@@ -208,14 +238,16 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                 {
                     "id": datasets.Value("string"),
                     "words": datasets.Sequence(datasets.Value("string")),
-                    "bboxes": datasets.Sequence(datasets.Sequence(datasets.Value("int64"))),
+                    "bboxes": datasets.Sequence(
+                        datasets.Sequence(datasets.Value("int64"))
+                    ),
                     "labels": datasets.Sequence(
-                        datasets.features.ClassLabel(
-                            names=self.config.labels
-                        )
+                        datasets.features.ClassLabel(names=self.config.labels)
                     ),
                     "image": datasets.features.Image(),
-                    "polygon": datasets.Sequence(datasets.Sequence(datasets.Value("int64"))),
+                    "polygon": datasets.Sequence(
+                        datasets.Sequence(datasets.Value("int64"))
+                    ),
                 }
             ),
             citation=self.config.citation,
@@ -227,49 +259,65 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
         if self.config.name == "ICPR2022Real":
             return [
                 datasets.SplitGenerator(
-                    name=datasets.Split.TRAIN, gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022/real/train/"}
+                    name=datasets.Split.TRAIN,
+                    gen_kwargs={
+                        "filepaths": [f"{downloaded_files}/ICPR2022Real/train/"]
+                    },
                 ),
                 datasets.SplitGenerator(
-                    name=datasets.Split.TEST, gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022/real/test/"}
+                    name=datasets.Split.TEST,
+                    gen_kwargs={
+                        "filepaths": [f"{downloaded_files}/ICPR2022Real/test/"]
+                    },
                 ),
             ]
         if self.config.name == "CHIME-R":
             return [
                 datasets.SplitGenerator(
-                    name="full", gen_kwargs={"filepath": f"{downloaded_files}/CHIME-R/"}
-                ),
-            ]
-        if self.config.name == "DeGruyter":
-            return [
-                datasets.SplitGenerator(
-                    name="full", gen_kwargs={"filepath": f"{downloaded_files}/DeGruyter/"}
+                    name="full",
+                    gen_kwargs={
+                        "filepaths": [
+                            f"{downloaded_files}/CHIME-R/train/",
+                            f"{downloaded_files}/CHIME-R/test/",
+                        ]
+                    },
                 ),
             ]
         if self.config.name == "EconBiz":
             return [
                 datasets.SplitGenerator(
-                    name="full", gen_kwargs={"filepath": f"{downloaded_files}/EconBiz/"}
+                    name="full",
+                    gen_kwargs={
+                        "filepaths": [
+                            f"{downloaded_files}/EconBiz/train/",
+                            f"{downloaded_files}/EconBiz/test/",
+                        ]
+                    },
                 ),
             ]
 
-    def _generate_examples(self, filepath, filepaths_tar=None):
+    def _generate_examples(self, filepaths, filepaths_tar=None):
+        for filepath in filepaths:
+            if filepaths_tar is not None:
+                for tar in filepaths_tar:
+                    filepath = os.path.join(tar, filepath)
+                    return self.generate(filepath)
 
-        if filepaths_tar is not None:
-            for tar in filepaths_tar:
-                filepath = os.path.join(tar, filepath)
+            else:
                 return self.generate(filepath)
-
-        else:
-            return self.generate(filepath)
 
     def generate(self, filepath):
         dataset_format1 = ["ICPR2022Real"]
-        dataset_format2 = ["CHIME-R", "DeGruyter", "EconBiz"]
+        dataset_format2 = ["CHIME-R", "EconBiz"]
 
         ann_dir = os.path.join(filepath, "annotations")
         img_dir = os.path.join(filepath, "images")
 
-        files = [f for f in sorted(os.listdir(ann_dir)) if (not f.startswith('.')) and (f.endswith(".json"))]
+        files = [
+            f
+            for f in sorted(os.listdir(ann_dir))
+            if (not f.startswith(".")) and (f.endswith(".json"))
+        ]
         for guid, file in enumerate(files):
             words = []
             bboxes = []
@@ -300,14 +348,32 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                     if label.upper() not in self.config.labels:
                         words.append(w["text"])
                         if self.config.name in dataset_format1:
-                            bboxes.append(normalize_bbox(quad_to_box(w["polygon"]), size, type="polygon"))
-                            poly_bboxes.append([w["polygon"][key] for key in sorted(w["polygon"].keys())])
+                            bboxes.append(
+                                normalize_bbox(
+                                    quad_to_box(w["polygon"]), size, type="polygon"
+                                )
+                            )
+                            poly_bboxes.append(
+                                [
+                                    w["polygon"][key]
+                                    for key in sorted(w["polygon"].keys())
+                                ]
+                            )
                         labels.append("OTHER")
                     else:
                         words.append(w["text"])
                         if self.config.name in dataset_format1:
-                            bboxes.append(normalize_bbox(quad_to_box(w["polygon"]), size, type="polygon"))
-                            poly_bboxes.append([w["polygon"][key] for key in sorted(w["polygon"].keys())])
+                            bboxes.append(
+                                normalize_bbox(
+                                    quad_to_box(w["polygon"]), size, type="polygon"
+                                )
+                            )
+                            poly_bboxes.append(
+                                [
+                                    w["polygon"][key]
+                                    for key in sorted(w["polygon"].keys())
+                                ]
+                            )
                         labels.append(label.upper())
             else:
                 output = data["textelements"]
@@ -319,15 +385,25 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                     if label.upper() not in self.config.labels:
                         words.append(w["content"])
                         quad = get_quad(w["boundingbox"], size[0], size[1])
-                        bboxes.append(normalize_bbox(quad_to_box(quad), size, type="polygon"))
+                        bboxes.append(
+                            normalize_bbox(quad_to_box(quad), size, type="polygon")
+                        )
                         poly_bboxes.append([quad[key] for key in sorted(quad.keys())])
                         labels.append("OTHER")
                     else:
                         words.append(w["content"])
                         quad = get_quad(w["boundingbox"], size[0], size[1])
-                        bboxes.append(normalize_bbox(quad_to_box(quad), size, type="polygon"))
+                        bboxes.append(
+                            normalize_bbox(quad_to_box(quad), size, type="polygon")
+                        )
                         poly_bboxes.append([quad[key] for key in sorted(quad.keys())])
                         labels.append(label.upper())
 
-            yield guid, {"id": str(guid), "words": words, "bboxes": bboxes, "labels": labels, "image": img,
-                         "polygon": poly_bboxes}
+            yield guid, {
+                "id": str(guid),
+                "words": words,
+                "bboxes": bboxes,
+                "labels": labels,
+                "image": img,
+                "polygon": poly_bboxes,
+            }

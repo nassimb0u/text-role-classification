@@ -13,6 +13,7 @@ from dab import *
 
 # adapted from: https://github.com/NielsRogge/Transformers-Tutorials/blob/master/LayoutLMv3/Fine_tune_LayoutLMv3_on_FUNSD_(HuggingFace_Trainer).ipynb
 
+
 def get_label_list(labels):
     unique_labels = set()
     for label in labels:
@@ -41,43 +42,67 @@ def prepare_examples(examples):
     words = examples[utils_config["column_names"]["text"]]
     boxes = examples[utils_config["column_names"]["boxes"]]
     word_labels = examples[utils_config["column_names"]["label"]]
-    processor = AutoProcessor.from_pretrained(utils_config["pretrained_model"], apply_ocr=False)
+    processor = AutoProcessor.from_pretrained(
+        utils_config["pretrained_model"], apply_ocr=False
+    )
 
-    encoding = processor(images, words, boxes=boxes, word_labels=word_labels,
-                         truncation=True, padding="max_length")
+    encoding = processor(
+        images,
+        words,
+        boxes=boxes,
+        word_labels=word_labels,
+        truncation=True,
+        padding="max_length",
+    )
 
     return encoding
 
 
-def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None, eval=False,
-                            transforms_augmentations=None, transforms_balancing=None, experiment_mode=False, concat_datasets=False):
+def make_train_eval_test_ds(
+    ds,
+    cols,
+    features,
+    batched=True,
+    combine_type=None,
+    eval=False,
+    transforms_augmentations=None,
+    transforms_balancing=None,
+    experiment_mode=False,
+    concat_datasets=False,
+):
 
     # split icpr22 train into train and eval
     icpr22 = ds[0]["train"].train_test_split(shuffle=True, test_size=0.1)
 
-    test_dataset = {"icpr22": ds[0]["test"].map(
-        prepare_examples,
-        batched=batched,
-        remove_columns=cols,
-        features=features,
-    )}
+    test_dataset = {
+        "icpr22": ds[0]["test"].map(
+            prepare_examples,
+            batched=batched,
+            remove_columns=cols,
+            features=features,
+        )
+    }
 
     # prepare datasets
     if combine_type is None:
 
-        train_dataset = {"icpr22": icpr22["train"].map(
-            prepare_examples,
-            batched=batched,
-            remove_columns=cols,
-            features=features,
-        )}
+        train_dataset = {
+            "icpr22": icpr22["train"].map(
+                prepare_examples,
+                batched=batched,
+                remove_columns=cols,
+                features=features,
+            )
+        }
 
-        eval_dataset = {"icpr22": icpr22["test"].map(
-            prepare_examples,
-            batched=batched,
-            remove_columns=cols,
-            features=features,
-        )}
+        eval_dataset = {
+            "icpr22": icpr22["test"].map(
+                prepare_examples,
+                batched=batched,
+                remove_columns=cols,
+                features=features,
+            )
+        }
 
         test_dataset["chimer"] = ds[1]["full"].map(
             prepare_examples,
@@ -86,14 +111,7 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
             features=features,
         )
 
-        test_dataset["degruyter"] = ds[2]["full"].map(
-            prepare_examples,
-            batched=batched,
-            remove_columns=cols,
-            features=features,
-        )
-
-        test_dataset["econbiz"] = ds[3]["full"].map(
+        test_dataset["econbiz"] = ds[2]["full"].map(
             prepare_examples,
             batched=batched,
             remove_columns=cols,
@@ -101,13 +119,27 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
         )
 
         if transforms_augmentations is None and transforms_balancing is None and eval:
-            return train_dataset["icpr22"], icpr22["train"], eval_dataset["icpr22"], test_dataset
+            return (
+                train_dataset["icpr22"],
+                icpr22["train"],
+                eval_dataset["icpr22"],
+                test_dataset,
+            )
 
-        elif transforms_augmentations is None and transforms_balancing is None and not eval:
+        elif (
+            transforms_augmentations is None
+            and transforms_balancing is None
+            and not eval
+        ):
             return train_dataset["icpr22"], icpr22["train"], test_dataset
 
         # elif augmentations
-        train_dataset_dab = get_augmentated_ds(transforms_augmentations, transforms_balancing, icpr22["train"], experiment_mode)
+        train_dataset_dab = get_augmentated_ds(
+            transforms_augmentations,
+            transforms_balancing,
+            icpr22["train"],
+            experiment_mode,
+        )
         train_dataset_dab = train_dataset_dab.map(
             prepare_examples,
             batched=batched,
@@ -115,7 +147,9 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
             features=features,
         )
         if concat_datasets:
-            train_dataset_dab = concatenate_datasets([train_dataset["icpr22"], train_dataset_dab])
+            train_dataset_dab = concatenate_datasets(
+                [train_dataset["icpr22"], train_dataset_dab]
+            )
             train_dataset_dab.shuffle()
         return train_dataset_dab, icpr22["train"], test_dataset
 
@@ -142,7 +176,12 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
         features=features,
     )
 
-    train_dataset_list = [icpr22["train"], ds[1]["train"], ds[2]["train"], ds[3]["train"]]
+    train_dataset_list = [
+        icpr22["train"],
+        ds[1]["train"],
+        ds[2]["train"],
+        ds[3]["train"],
+    ]
 
     if combine_type == "concat":
         train_dataset_combined = concatenate_datasets(train_dataset_list)
@@ -161,7 +200,12 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
         return train_dataset_combined_mapped, train_dataset_combined, test_dataset
 
     # augmentations
-    train_dataset_dab = get_augmentated_ds(transforms_augmentations, transforms_balancing, train_dataset_combined, experiment_mode)
+    train_dataset_dab = get_augmentated_ds(
+        transforms_augmentations,
+        transforms_balancing,
+        train_dataset_combined,
+        experiment_mode,
+    )
     train_dataset_dab = train_dataset_dab.map(
         prepare_examples,
         batched=batched,
@@ -169,12 +213,16 @@ def make_train_eval_test_ds(ds, cols, features, batched=True, combine_type=None,
         features=features,
     )
     if concat_datasets:
-        train_dataset_dab = concatenate_datasets([train_dataset_combined_mapped, train_dataset_dab])
+        train_dataset_dab = concatenate_datasets(
+            [train_dataset_combined_mapped, train_dataset_dab]
+        )
         train_dataset_dab.shuffle()
     return train_dataset_dab, train_dataset_combined, test_dataset
 
 
-def get_augmentated_ds(transforms_augmentations, transforms_balancing, train_ds, experiment_mode):
+def get_augmentated_ds(
+    transforms_augmentations, transforms_balancing, train_ds, experiment_mode
+):
     ds_list = []
     apply_cutout = Cutout()
     # other augmentations
@@ -188,10 +236,12 @@ def get_augmentated_ds(transforms_augmentations, transforms_balancing, train_ds,
     else:
         transforms_balancing = None
 
-    train_dataset_dab = DAB(dataset=train_ds,
-                            transforms_balancing=transforms_balancing,
-                            transforms_augmentation=transforms_augmentation,
-                            experiment_mode=experiment_mode)
+    train_dataset_dab = DAB(
+        dataset=train_ds,
+        transforms_balancing=transforms_balancing,
+        transforms_augmentation=transforms_augmentation,
+        experiment_mode=experiment_mode,
+    )
     for sample in train_dataset_dab:
         ds_list.append(sample)
     train_dataset_dab = datasets.Dataset.from_list(ds_list)
@@ -252,7 +302,9 @@ def compute_metrics(p):
 
 def log(trainer, model_name, config, plot=False):
     if not os.path.exists(f'{config["logging_dir"]}/{model_name}'):
-        print(f'{model_name} directory does not exist in {config["logging_dir"]}, creating...')
+        print(
+            f'{model_name} directory does not exist in {config["logging_dir"]}, creating...'
+        )
         os.makedirs(f'{config["logging_dir"]}/{model_name}')
     eval_loss = []
     eval_accuracy = []
@@ -261,33 +313,35 @@ def log(trainer, model_name, config, plot=False):
     steps = []
     logging_file = f'{config["logging_dir"]}/{model_name}/logs.txt'
 
-    with open(logging_file, 'w') as f:
-        f.write(f'The best model checkpoint is: {trainer.state.best_model_checkpoint} \n')
+    with open(logging_file, "w") as f:
+        f.write(
+            f"The best model checkpoint is: {trainer.state.best_model_checkpoint} \n"
+        )
         for l in trainer.state.log_history[1:-1:2]:
             for k, v in l.items():
-                if k == 'eval_loss':
+                if k == "eval_loss":
                     eval_loss.append(v)
-                elif k == 'eval_accuracy':
+                elif k == "eval_accuracy":
                     eval_accuracy.append(v)
-                elif k == 'eval_f1_micro':
+                elif k == "eval_f1_micro":
                     eval_f1_micro.append(v)
-                elif k == 'eval_f1_macro':
+                elif k == "eval_f1_macro":
                     eval_f1_macro.append(v)
-                elif k == 'step':
+                elif k == "step":
                     steps.append(v)
-                f.write(f'{k}: {v} \n')
+                f.write(f"{k}: {v} \n")
 
     if plot:
         plotting_file = f'{config["logging_dir"]}/{model_name}/plot.png'
-        plt.plot(steps, eval_accuracy, label='accuracy')
-        plt.plot(steps, eval_loss, label='loss')
-        plt.plot(steps, eval_f1_micro, label='f1_micro')
-        plt.plot(steps, eval_f1_macro, label='f1_macro')
-        plt.xlabel('number of steps')
-        plt.ylabel('score')
-        plt.title('model performance on evaluation dataset')
+        plt.plot(steps, eval_accuracy, label="accuracy")
+        plt.plot(steps, eval_loss, label="loss")
+        plt.plot(steps, eval_f1_micro, label="f1_micro")
+        plt.plot(steps, eval_f1_macro, label="f1_macro")
+        plt.xlabel("number of steps")
+        plt.ylabel("score")
+        plt.title("model performance on evaluation dataset")
         plt.legend()
-        plt.savefig(f'{plotting_file}')
+        plt.savefig(f"{plotting_file}")
         plt.clf()
 
 
@@ -295,14 +349,14 @@ def evaluate(trainer, predictions_file, output_file, dataset, label_list):
     # TEST
     logits = trainer.predict(dataset)
     predictions = logits.predictions.argmax(-1).squeeze().tolist()
-    labels = dataset['labels']
+    labels = dataset["labels"]
     true_predictions = [
         [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
         for prediction, label in zip(predictions, labels)
     ]
-    with open(predictions_file, 'w') as f1:
+    with open(predictions_file, "w") as f1:
         for i, pred in enumerate(true_predictions):
-            f1.write(f'{i}: {pred} \n')
-    with open(output_file, 'w') as f2:
+            f1.write(f"{i}: {pred} \n")
+    with open(output_file, "w") as f2:
         for k, v in logits.metrics.items():
-            f2.write(f'{k}: {v} \n')
+            f2.write(f"{k}: {v} \n")
