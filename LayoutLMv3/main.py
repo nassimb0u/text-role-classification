@@ -299,7 +299,7 @@ def main():
         old_collator = trainer.data_collator
         trainer.data_collator = lambda data: dict(old_collator(data))
         trainer.train(
-            resume_from_checkpoint="/kaggle/working/LayoutLMv3/outputs/layoutlmv3_base_linear_None_False_10000_2_16_2e-05_noaug_nobal/checkpoint-8000"
+            resume_from_checkpoint="/kaggle/working/LayoutLMv3/outputs/layoutlmv3_base_linear_None_False_10000_2_16_2e-05_noaug_nobal/checkpoint-10000"
         )
 
         # LOG #
