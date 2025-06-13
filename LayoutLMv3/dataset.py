@@ -399,7 +399,17 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                                 [quad[key] for key in sorted(quad.keys())]
                             )
                             labels.append(label.upper())
-
+                print(
+                    guid,
+                    {
+                        "id": str(guid),
+                        "words": words,
+                        "bboxes": bboxes,
+                        "labels": labels,
+                        "image": img,
+                        "polygon": poly_bboxes,
+                    },
+                )
                 yield guid, {
                     "id": str(guid),
                     "words": words,
