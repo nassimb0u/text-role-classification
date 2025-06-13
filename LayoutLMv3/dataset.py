@@ -302,6 +302,7 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
         dataset_format2 = ["CHIME-R", "EconBiz"]
 
         gen_filepaths = sorted(glob.glob(filepath_mbg))
+        print(f"Generating examples from {gen_filepaths}")
 
         for filepath in gen_filepaths:
             ann_dir = os.path.join(filepath, "annotations")
