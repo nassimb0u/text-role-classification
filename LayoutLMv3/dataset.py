@@ -302,7 +302,8 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
         dataset_format2 = ["CHIME-R", "EconBiz"]
 
         gen_filepaths = sorted(glob.glob(filepath_mbg))
-        print(f"Generating examples from {gen_filepaths}")
+
+        guid = 0
 
         for filepath in gen_filepaths:
             ann_dir = os.path.join(filepath, "annotations")
@@ -313,7 +314,7 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                 for f in sorted(os.listdir(ann_dir))
                 if (not f.startswith(".")) and (f.endswith(".json"))
             ]
-            for guid, file in enumerate(files):
+            for file in files:
                 words = []
                 bboxes = []
                 poly_bboxes = []
@@ -399,19 +400,6 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                                 [quad[key] for key in sorted(quad.keys())]
                             )
                             labels.append(label.upper())
-                if "CHIME-R" in filepath:
-                    print(
-                        guid,
-                        {
-                            "file": file,
-                            "id": str(guid),
-                            "words": words,
-                            "bboxes": bboxes,
-                            "labels": labels,
-                            "image": img,
-                            "polygon": poly_bboxes,
-                        },
-                    )
                 yield guid, {
                     "id": str(guid),
                     "words": words,
@@ -420,3 +408,4 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                     "image": img,
                     "polygon": poly_bboxes,
                 }
+                guid += 1
