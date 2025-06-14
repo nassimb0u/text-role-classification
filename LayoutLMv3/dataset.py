@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 
@@ -260,15 +261,11 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
             return [
                 datasets.SplitGenerator(
                     name=datasets.Split.TRAIN,
-                    gen_kwargs={
-                        "filepaths": [f"{downloaded_files}/ICPR2022Real/train/"]
-                    },
+                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/train/"},
                 ),
                 datasets.SplitGenerator(
                     name=datasets.Split.TEST,
-                    gen_kwargs={
-                        "filepaths": [f"{downloaded_files}/ICPR2022Real/test/"]
-                    },
+                    gen_kwargs={"filepath": f"{downloaded_files}/ICPR2022Real/test/"},
                 ),
             ]
         if self.config.name == "CHIME-R":
@@ -276,10 +273,7 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                 datasets.SplitGenerator(
                     name="full",
                     gen_kwargs={
-                        "filepaths": [
-                            f"{downloaded_files}/CHIME-R/train/",
-                            f"{downloaded_files}/CHIME-R/test/",
-                        ]
+                        "filepath": f"{downloaded_files}/CHIME-R/*/",
                     },
                 ),
             ]
@@ -288,122 +282,130 @@ class ChartInfo(datasets.GeneratorBasedBuilder):
                 datasets.SplitGenerator(
                     name="full",
                     gen_kwargs={
-                        "filepaths": [
-                            f"{downloaded_files}/EconBiz/train/",
-                            f"{downloaded_files}/EconBiz/test/",
-                        ]
+                        "filepath": f"{downloaded_files}/EconBiz/*/",
                     },
                 ),
             ]
 
-    def _generate_examples(self, filepaths, filepaths_tar=None):
-        for filepath in filepaths:
-            if filepaths_tar is not None:
-                for tar in filepaths_tar:
-                    filepath = os.path.join(tar, filepath)
-                    return self.generate(filepath)
+    def _generate_examples(self, filepath, filepaths_tar=None):
 
-            else:
+        if filepaths_tar is not None:
+            for tar in filepaths_tar:
+                filepath = os.path.join(tar, filepath)
                 return self.generate(filepath)
 
-    def generate(self, filepath):
+        else:
+            return self.generate(filepath)
+
+    def generate(self, filepath_mbg):
         dataset_format1 = ["ICPR2022Real"]
         dataset_format2 = ["CHIME-R", "EconBiz"]
 
-        ann_dir = os.path.join(filepath, "annotations")
-        img_dir = os.path.join(filepath, "images")
+        gen_filepaths = sorted(glob.glob(filepath_mbg))
 
-        files = [
-            f
-            for f in sorted(os.listdir(ann_dir))
-            if (not f.startswith(".")) and (f.endswith(".json"))
-        ]
-        for guid, file in enumerate(files):
-            words = []
-            bboxes = []
-            poly_bboxes = []
-            labels = []
-            id_role = {}
+        guid = 0
 
-            file_path = os.path.join(ann_dir, file)
-            with open(file_path, "r", encoding="utf8") as f:
-                data = json.load(f)
-            img_path = os.path.join(img_dir, file)
-            img_path = img_path.replace("json", self.config.img_type)
-            img, size = load_image(img_path)
+        for filepath in gen_filepaths:
+            ann_dir = os.path.join(filepath, "annotations")
+            img_dir = os.path.join(filepath, "images")
 
-            if self.config.name not in dataset_format2:
-                output = data["task3"]["output"]
-                for item in output["text_roles"]:
-                    id_role[item["id"]] = item["role"]
+            files = [
+                f
+                for f in sorted(os.listdir(ann_dir))
+                if (not f.startswith(".")) and (f.endswith(".json"))
+            ]
+            for file in files:
+                words = []
+                bboxes = []
+                poly_bboxes = []
+                labels = []
+                id_role = {}
 
-                input = data["task3"]["input"]
-                # chart_type = input["task1_output"]["chart_type"]
+                file_path = os.path.join(ann_dir, file)
+                with open(file_path, "r", encoding="utf8") as f:
+                    data = json.load(f)
+                img_path = os.path.join(img_dir, file)
+                img_path = img_path.replace("json", self.config.img_type)
+                img, size = load_image(img_path)
 
-                words_example = input["task2_output"]["text_blocks"]
-                words_example = [w for w in words_example if w["text"].strip() != ""]
+                if self.config.name not in dataset_format2:
+                    output = data["task3"]["output"]
+                    for item in output["text_roles"]:
+                        id_role[item["id"]] = item["role"]
 
-                for w in words_example:
-                    label = id_role[w["id"]]
-                    if label.upper() not in self.config.labels:
-                        words.append(w["text"])
-                        if self.config.name in dataset_format1:
-                            bboxes.append(
-                                normalize_bbox(
-                                    quad_to_box(w["polygon"]), size, type="polygon"
+                    input = data["task3"]["input"]
+                    # chart_type = input["task1_output"]["chart_type"]
+
+                    words_example = input["task2_output"]["text_blocks"]
+                    words_example = [
+                        w for w in words_example if w["text"].strip() != ""
+                    ]
+
+                    for w in words_example:
+                        label = id_role[w["id"]]
+                        if label.upper() not in self.config.labels:
+                            words.append(w["text"])
+                            if self.config.name in dataset_format1:
+                                bboxes.append(
+                                    normalize_bbox(
+                                        quad_to_box(w["polygon"]), size, type="polygon"
+                                    )
                                 )
+                                poly_bboxes.append(
+                                    [
+                                        w["polygon"][key]
+                                        for key in sorted(w["polygon"].keys())
+                                    ]
+                                )
+                            labels.append("OTHER")
+                        else:
+                            words.append(w["text"])
+                            if self.config.name in dataset_format1:
+                                bboxes.append(
+                                    normalize_bbox(
+                                        quad_to_box(w["polygon"]), size, type="polygon"
+                                    )
+                                )
+                                poly_bboxes.append(
+                                    [
+                                        w["polygon"][key]
+                                        for key in sorted(w["polygon"].keys())
+                                    ]
+                                )
+                            labels.append(label.upper())
+                else:
+                    output = data["textelements"]
+                    for item in output:
+                        id_role[item["id"]] = item["role"]
+
+                    for w in output:
+                        label = id_role[w["id"]]
+                        if label.upper() not in self.config.labels:
+                            words.append(w["content"])
+                            quad = get_quad(w["boundingbox"], size[0], size[1])
+                            bboxes.append(
+                                normalize_bbox(quad_to_box(quad), size, type="polygon")
                             )
                             poly_bboxes.append(
-                                [
-                                    w["polygon"][key]
-                                    for key in sorted(w["polygon"].keys())
-                                ]
+                                [quad[key] for key in sorted(quad.keys())]
                             )
-                        labels.append("OTHER")
-                    else:
-                        words.append(w["text"])
-                        if self.config.name in dataset_format1:
+                            labels.append("OTHER")
+                        else:
+                            words.append(w["content"])
+                            quad = get_quad(w["boundingbox"], size[0], size[1])
                             bboxes.append(
-                                normalize_bbox(
-                                    quad_to_box(w["polygon"]), size, type="polygon"
-                                )
+                                normalize_bbox(quad_to_box(quad), size, type="polygon")
                             )
                             poly_bboxes.append(
-                                [
-                                    w["polygon"][key]
-                                    for key in sorted(w["polygon"].keys())
-                                ]
+                                [quad[key] for key in sorted(quad.keys())]
                             )
-                        labels.append(label.upper())
-            else:
-                output = data["textelements"]
-                for item in output:
-                    id_role[item["id"]] = item["role"]
-
-                for w in output:
-                    label = id_role[w["id"]]
-                    if label.upper() not in self.config.labels:
-                        words.append(w["content"])
-                        quad = get_quad(w["boundingbox"], size[0], size[1])
-                        bboxes.append(
-                            normalize_bbox(quad_to_box(quad), size, type="polygon")
-                        )
-                        poly_bboxes.append([quad[key] for key in sorted(quad.keys())])
-                        labels.append("OTHER")
-                    else:
-                        words.append(w["content"])
-                        quad = get_quad(w["boundingbox"], size[0], size[1])
-                        bboxes.append(
-                            normalize_bbox(quad_to_box(quad), size, type="polygon")
-                        )
-                        poly_bboxes.append([quad[key] for key in sorted(quad.keys())])
-                        labels.append(label.upper())
-
-            yield guid, {
-                "id": str(guid),
-                "words": words,
-                "bboxes": bboxes,
-                "labels": labels,
-                "image": img,
-                "polygon": poly_bboxes,
-            }
+                            labels.append(label.upper())
+                yield guid, {
+                    "id": str(guid),
+                    "words": words,
+                    "bboxes": bboxes,
+                    "labels": labels,
+                    "image": img,
+                    "polygon": poly_bboxes,
+                }
+                guid += 1
